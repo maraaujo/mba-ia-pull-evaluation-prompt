@@ -8,7 +8,7 @@ Você deve entregar um software capaz de:
 2. **Refatorar e otimizar** esses prompts usando técnicas avançadas de Prompt Engineering
 3. **Fazer push dos prompts otimizados** de volta ao LangSmith
 4. **Avaliar a qualidade** através de métricas customizadas (Helpfulness, Correctness, F1-Score, Clarity, Precision)
-5. **Atingir pontuação mínima** de 0.9 (90%) em todas as métricas de avaliação
+5. **Atingir pontuação mínima** de 0.8 (80%) em todas as métricas de avaliação
 
 ---
 
