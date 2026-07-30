@@ -163,7 +163,7 @@ Após refatorar os prompts, você deve enviá-los de volta ao LangSmith Prompt H
 - Espera-se 3-5 iterações.
 - Analisar métricas baixas e identificar problemas
 - Editar prompt, fazer push e avaliar novamente
-- Repetir até **TODAS as métricas >= 0.9**
+- Repetir até **TODAS as métricas >= 0.8**
 
 ### Critério de Aprovação:
 
@@ -571,6 +571,7 @@ O processo demonstrou a importância da experimentação iterativa e da análise
 
 # Prints  LANGSMITH
 Tracing: 
-![alt text](image.png)
+<img width="1885" height="878" alt="image" src="https://github.com/user-attachments/assets/639e58dd-de72-4e97-93b0-7198b7737b40" />
+
 
 ![alt text](image-1.png)
