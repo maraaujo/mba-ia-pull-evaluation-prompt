@@ -317,13 +317,8 @@ python src/evaluate.py
 
 **3. Evidências no LangSmith:**
 
-- Link público (ou screenshots) do dashboard do LangSmith
-- Devem estar visíveis:
-  - Dataset de avaliação com 15 exemplos
-  - Execuções dos prompts v2 (otimizados) com notas ≥ 0.8
-  - Tracing detalhado de pelo menos 3 exemplos
+<img width="1909" height="887" alt="image" src="https://github.com/user-attachments/assets/d9f58cc0-b649-4ea2-9dc3-adc5cda19ee6" />
 
----
 
 ## Dicas Finais
 
