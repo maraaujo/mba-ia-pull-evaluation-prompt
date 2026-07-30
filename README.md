@@ -309,12 +309,13 @@ python src/evaluate.py
 - Screenshots das avaliações com as notas mínimas de 0.8 atingidas
 - Tabela comparativa: prompts ruins (v1) vs prompts otimizados (v2)
 
-**C) Seção "Como Executar":**
+** Seção "Como Executar":**
 
-- Instruções claras e detalhadas de como executar o projeto
-- Pré-requisitos e dependências
-- Comandos para cada fase do projeto
-
+Criar o arquivo .env
+Setar a variavel USERNAME_LANGSMITH_HUB=mba-fullcycle-handler
+Configurar uma chave para a OpenAI ou Google conforme o modelo escolhido para execução
+Rodar o comando python .\src\push_prompts.py
+Rodar o comando python .\src\evaluate.py
 **3. Evidências no LangSmith:**
 
 <img width="1909" height="887" alt="image" src="https://github.com/user-attachments/assets/d9f58cc0-b649-4ea2-9dc3-adc5cda19ee6" />
