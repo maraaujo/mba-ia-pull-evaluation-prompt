@@ -66,64 +66,70 @@ def extract_json_from_response(response_text: str) -> Dict[str, Any]:
 
 def evaluate_f1_score(question: str, answer: str, reference: str) -> Dict[str, Any]:
     """
-    Calcula F1-Score usando LLM-as-Judge.
+    Calcula F1-Score usando LLM-as-Judge com comparação semântica.
 
-    F1-Score = 2 * (Precision * Recall) / (Precision + Recall)
-
-    Args:
-        question: Pergunta feita pelo usuário
-        answer: Resposta gerada pelo prompt
-        reference: Resposta esperada (ground truth)
-
-    Returns:
-        Dict com score e reasoning:
-        {
-            "score": 0.95,
-            "precision": 0.9,
-            "recall": 0.99,
-            "reasoning": "Explicação do LLM..."
-        }
+    A resposta de referência representa o conteúdo mínimo esperado.
+    Informações adicionais corretas e sustentadas pelo bug report não devem
+    reduzir a precisão apenas por não aparecerem literalmente na referência.
     """
     evaluator_prompt = f"""
-Você é um avaliador especializado em medir a qualidade de respostas geradas por IA.
+Você é um avaliador especializado em comparar semanticamente uma resposta
+gerada por IA com uma resposta de referência.
 
 Sua tarefa é calcular PRECISION e RECALL para determinar o F1-Score.
 
-PERGUNTA DO USUÁRIO:
+BUG REPORT ORIGINAL:
 {question}
 
-RESPOSTA ESPERADA (Ground Truth):
+RESPOSTA ESPERADA:
 {reference}
 
-RESPOSTA GERADA PELO MODELO:
+RESPOSTA GERADA:
 {answer}
 
-INSTRUÇÕES:
+REGRAS GERAIS:
 
-1. PRECISION (0.0 a 1.0):
-   - Quantas informações na resposta gerada são CORRETAS e RELEVANTES?
-   - Penalizar informações incorretas, inventadas ou desnecessárias
-   - 1.0 = todas informações são corretas e relevantes
-   - 0.0 = nenhuma informação é correta ou relevante
+- Avalie o significado das informações, e não a correspondência exata de palavras.
+- Paráfrases semanticamente equivalentes devem ser consideradas correspondências completas.
+- Diferenças de títulos, Markdown, ordem das seções ou formatação não devem reduzir a nota.
+- O bug report original é a principal fonte de verdade.
+- A resposta de referência representa o conteúdo mínimo esperado.
+- Não penalize uma informação adicional quando ela estiver explicitamente apoiada pelo bug report.
+- Penalize informações inventadas, incorretas ou soluções técnicas não apoiadas pelo bug report ou pela referência.
 
-2. RECALL (0.0 a 1.0):
-   - Quantas informações da resposta esperada estão PRESENTES na resposta gerada?
-   - Penalizar informações importantes que foram omitidas
-   - 1.0 = todas informações importantes estão presentes
-   - 0.0 = nenhuma informação importante está presente
+PRECISION (0.0 a 1.0):
 
-3. RACIOCÍNIO:
-   - Explique brevemente sua avaliação
-   - Cite exemplos específicos do que estava correto/incorreto
+1. Identifique as afirmações factuais e os requisitos da resposta gerada.
+2. Verifique quantos estão apoiados pelo bug report ou pela resposta esperada.
+3. Considere:
+   precision = afirmações apoiadas / total de afirmações relevantes da resposta
+4. Não considere títulos e elementos de formatação como afirmações.
+5. Não penalize explicações adicionais corretas e diretamente relacionadas ao bug.
 
-IMPORTANTE: Retorne APENAS um objeto JSON válido no formato:
+RECALL (0.0 a 1.0):
+
+1. Divida a resposta esperada em fatos ou requisitos importantes.
+2. Verifique quantos desses fatos estão semanticamente presentes na resposta gerada.
+3. Considere:
+   recall = fatos da referência cobertos / total de fatos importantes da referência
+4. Uma informação não precisa estar escrita com as mesmas palavras para ser considerada coberta.
+5. Não exija que a resposta gerada tenha exatamente a mesma estrutura da referência.
+
+RACIOCÍNIO:
+
+- Explique objetivamente quais fatos foram cobertos.
+- Indique quais fatos importantes foram omitidos.
+- Indique quais informações foram adicionadas sem apoio no bug report ou na referência.
+
+Retorne APENAS um objeto JSON válido:
+
 {{
   "precision": <valor entre 0.0 e 1.0>,
   "recall": <valor entre 0.0 e 1.0>,
-  "reasoning": "<sua explicação em até 100 palavras>"
+  "reasoning": "<explicação objetiva em até 120 palavras>"
 }}
 
-NÃO adicione nenhum texto antes ou depois do JSON.
+Não adicione texto antes ou depois do JSON.
 """
 
     try:
@@ -134,7 +140,9 @@ NÃO adicione nenhum texto antes ou depois do JSON.
         precision = float(result.get("precision", 0.0))
         recall = float(result.get("recall", 0.0))
 
-        # Calcular F1-Score
+        precision = max(0.0, min(1.0, precision))
+        recall = max(0.0, min(1.0, recall))
+
         if (precision + recall) > 0:
             f1_score = 2 * (precision * recall) / (precision + recall)
         else:
@@ -155,8 +163,6 @@ NÃO adicione nenhum texto antes ou depois do JSON.
             "recall": 0.0,
             "reasoning": f"Erro na avaliação: {str(e)}"
         }
-
-
 def evaluate_clarity(question: str, answer: str, reference: str) -> Dict[str, Any]:
     """
     Avalia a clareza e estrutura da resposta usando LLM-as-Judge.
@@ -693,9 +699,8 @@ NÃO adicione nenhum texto antes ou depois do JSON.
         }
 
 
-# Exemplo de uso e testes
+
 if __name__ == "__main__":
-    # Mostrar provider configurado
     provider = os.getenv("LLM_PROVIDER", "openai")
     eval_model = os.getenv("EVAL_MODEL", "gpt-4o")
 
@@ -735,7 +740,6 @@ if __name__ == "__main__":
     print("PARTE 2: MÉTRICAS ESPECÍFICAS PARA BUG TO USER STORY")
     print("=" * 70)
 
-    # Teste das métricas específicas de Bug to User Story
     test_bug = "Botão de adicionar ao carrinho não funciona no produto ID 1234."
     test_user_story = """Como um cliente navegando na loja, eu quero adicionar produtos ao meu carrinho de compras, para que eu possa continuar comprando e finalizar minha compra depois.
 

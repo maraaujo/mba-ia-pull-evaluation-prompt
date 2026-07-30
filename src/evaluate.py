@@ -200,18 +200,48 @@ def evaluate_prompt(
         print("   Avaliando exemplos...")
 
         for i, example in enumerate(examples, 1):
-            result = evaluate_prompt_on_example(prompt_template, example, llm)
+            result = evaluate_prompt_on_example(
+                prompt_template,
+                example,
+                llm
+            )
 
             if result["answer"]:
-                f1 = evaluate_f1_score(result["question"], result["answer"], result["reference"])
-                clarity = evaluate_clarity(result["question"], result["answer"], result["reference"])
-                precision = evaluate_precision(result["question"], result["answer"], result["reference"])
+                f1 = evaluate_f1_score(
+                    result["question"],
+                    result["answer"],
+                    result["reference"]
+                )
+
+                clarity = evaluate_clarity(
+                    result["question"],
+                    result["answer"],
+                    result["reference"]
+                )
+
+                precision = evaluate_precision(
+                    result["question"],
+                    result["answer"],
+                    result["reference"]
+                )
 
                 f1_scores.append(f1["score"])
                 clarity_scores.append(clarity["score"])
                 precision_scores.append(precision["score"])
 
-                print(f"      [{i}/{len(examples)}] F1:{f1['score']:.2f} Clarity:{clarity['score']:.2f} Precision:{precision['score']:.2f}")
+                print(
+                    f"      [{i}/{len(examples)}] "
+                    f"F1:{f1['score']:.2f} "
+                    f"(P:{f1['precision']:.2f} R:{f1['recall']:.2f}) "
+                    f"Clarity:{clarity['score']:.2f} "
+                    f"Precision:{precision['score']:.2f}"
+                )
+
+                if f1["score"] < 0.8:
+                    print(
+                        f"         Motivo do F1: "
+                        f"{f1['reasoning']}"
+                    )
 
         avg_f1 = sum(f1_scores) / len(f1_scores) if f1_scores else 0.0
         avg_clarity = sum(clarity_scores) / len(clarity_scores) if clarity_scores else 0.0
